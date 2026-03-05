@@ -1,0 +1,226 @@
+﻿@font-face {
+  font-family: Merriweather;
+  src: url("../fonts/Merriweather.ttf");
+}
+
+
+@font-face {
+  font-family: Merriweather-Bold;
+  src: url("../fonts/Merriweather-Bold.ttf");
+}
+
+
+@font-face {
+  font-family: Ginga;
+  src: url("../fonts/Ginga.ttf");
+}
+
+
+:root {
+  --roman-parchment: #f2e3c7;
+  --roman-stone: #d7c9ac;
+  --roman-ink: #22170f;
+  --roman-gold: #b1863f;
+  --roman-bronze: #7a4d29;
+  --roman-shadow: rgba(35, 24, 16, 0.45);
+  --roman-accent: #8f1f1f;
+}
+
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Merriweather, serif;
+  color: var(--roman-ink);
+}
+
+
+body {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: url("../images/Fondo%20de%20fondo%20css.png") center/cover no-repeat fixed;
+  padding: 24px;
+}
+
+
+h1 {
+  text-align: center;
+  font-family: Merriweather-Bold, "Palatino Linotype", "Book Antiqua", Garamond, serif;
+  font-size: clamp(1.75rem, 3.8vw, 2.7rem);
+  letter-spacing: 0.4px;
+  font-weight: normal;
+  color: #2b1c12;
+  text-shadow: 0 1px 0 #f8ead1, 0 2px 10px rgba(62, 38, 22, 0.25);
+  margin-bottom: 16px;
+  font-variant: small-caps;
+}
+
+
+em {
+  font-size: 0.9rem;
+  color: #3b2920;
+}
+
+
+p {
+  width: min(88%, 380px);
+  margin: 0 auto;
+  line-height: 1.45;
+  padding: 10px 12px;
+  border: 1px solid rgba(75, 50, 31, 0.25);
+  border-radius: 8px;
+  background: rgba(255, 248, 233, 0.55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+
+img {
+  display: block;
+  width: 300px;
+  height: 267px;
+  object-fit: cover;
+  margin: 0 auto 16px;
+  border: 3px solid #6b452b;
+  border-radius: 6px;
+  box-shadow: 0 10px 20px var(--roman-shadow);
+  background-color: #f5e6c8;
+}
+
+
+#stage {
+  width: min(92vw, 560px);
+  min-height: 680px;
+  position: relative;
+  margin: 0 auto;
+  padding: 32px 20px 96px;
+  border: 8px solid #6a472d;
+  border-radius: 12px;
+  background:
+    linear-gradient(rgba(255, 248, 230, 0.78), rgba(237, 219, 185, 0.78)),
+    url("../images/Fondo%20css.png") center/cover no-repeat;
+  box-shadow:
+    0 22px 40px var(--roman-shadow),
+    inset 0 0 0 2px rgba(255, 237, 203, 0.5),
+    inset 0 0 30px rgba(73, 47, 27, 0.3);
+  overflow: hidden;
+}
+
+
+#stage::before,
+#stage::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  width: 14px;
+  background: linear-gradient(#be9857, #8a5b2d, #be9857);
+  box-shadow: inset 0 0 4px rgba(255, 236, 192, 0.8);
+  opacity: 0.8;
+}
+
+
+#stage::before {
+  left: 10px;
+}
+
+
+#stage::after {
+  right: 10px;
+}
+
+
+input {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-115px);
+  width: 210px;
+  padding: 8px 10px;
+  border: 2px solid #6f4627;
+  border-radius: 8px;
+  text-align: left;
+  background-color: rgba(255, 249, 236, 0.86);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+}
+
+
+input::placeholder {
+  color: #6f5b4f;
+}
+
+
+button {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(108px);
+  height: 38px;
+  width: 88px;
+  border: 1px solid #3d2616;
+  border-radius: 999px;
+  font-family: Merriweather-Bold, Merriweather, serif;
+  font-size: 0.92rem;
+  color: #21150d;
+  cursor: pointer;
+  user-select: none;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  background: linear-gradient(180deg, #dfbf84 0%, #b8853f 55%, #8c5928 100%);
+  box-shadow:
+    0 5px 10px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 240, 205, 0.75);
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+
+button:hover {
+  filter: brightness(1.06);
+}
+
+
+button:active {
+  transform: translateX(108px) translateY(1px);
+}
+
+
+strong {
+  color: var(--roman-accent);
+  font-family: Merriweather-Bold, Merriweather, serif;
+}
+
+
+@media (max-width: 640px) {
+  #stage {
+    min-height: 90vh;
+    padding: 24px 14px 126px;
+  }
+
+
+  #stage::before,
+  #stage::after {
+    display: none;
+  }
+
+
+  input {
+    width: min(64vw, 250px);
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 72px;
+  }
+
+
+  button {
+    width: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 22px;
+  }
+
+
+  button:active {
+    transform: translateX(-50%) translateY(1px);
+  }
+}

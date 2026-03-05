@@ -1,0 +1,712 @@
+﻿<!doctype html>
+<meta charset="UTF-8">
+<title>Sombras sobre Roma</title>
+
+<div id="stage">
+  <h1>Sombras sobre Roma</h1>
+  <img src="" width="300" height="267">
+  <link rel="stylesheet" href="Sombras sobre Roma.css">
+  <p id="output"></p>
+  <input id="input" type="text" placeholder="Entra tu acción...">
+  <button>enter</button>
+</div>
+
+<script>
+
+// Lista de nombres de cada casilla del mapa. El índice numérico es la
+// posición usada por mapLocation para moverse por la cuadrícula.
+var map = [];
+map[0] = "Campamento de legionarios";
+map[1] = "Pozo con inscripciones en latin";
+map[2] = "Foro romano";
+map[3] = "Templo de Marte con una bestia dormida";
+map[4] = "Calzada romana de piedra";
+map[5] = "Puerta de la ciudad fortificada";
+map[6] = "Rio del imperio";
+map[7] = "Mercado romano";
+map[8] = "Villa de un senador";
+map[9] = "Campo de entrenamiento de gladiadores";
+map[10] = "Armeria romana";
+map[11] = "Torre de vigilancia";
+map[12] = "Cuartel de centuriones";
+map[13] = "Muralla defensiva";
+map[14] = "Templo de Jupiter";
+map[15] = "Santuario de Vesta";
+map[16] = "Altar antiguo en ruinas";
+map[17] = "Bosque sagrado de los dioses";
+map[18] = "Estatua gigante de un dios romano";
+map[19] = "Catacumbas oscuras";
+map[20] = "Mina abandonada";
+map[21] = "Pantano peligroso";
+map[22] = "Cementerio romano";
+map[23] = "Ruinas de una ciudad destruida";
+map[24] = "Palacio del gobernador romano";
+
+// Rutas de imagen (por índice) correspondientes a cada casilla en map.
+var images = [];
+images[0] = "campamento de legion.png";
+images[1] = "pozo de piedra en Roma.png";
+images[2] = "foro romano.png";
+images[3] = "templo de marte.png";
+images[4] = "Calzada romana de piedra.png";
+images[5] = "Puerta de la ciudad fortificada.png";
+images[6] = "Río del imperio.png";
+images[7] = "Mercado romano.png";
+images[8] = "Villa de un senador.png";
+images[9] = "Campo de entrenamiento de gladiadores.png.png";
+images[10] = "Armería romana.png";
+images[11] = "Torre de vigilancia.png";
+images[12] = "Cuartel de centuriones.png";
+images[13] = "Muralla defensiva.png";
+images[14] = "Templo de Júpiter.png";
+images[15] = "Santuario de Vesta.png";
+images[16] = "Altar antiguo en ruinas.png";
+images[17] = "Bosque sagrado de los dioses.png";
+images[18] = "Estatua gigante de un dios romano.png";
+images[19] = "Catacumbas oscuras.jpg";
+images[20] = "Mina abandonada.jpg";
+images[21] = "Pantano peligroso.jpg";
+images[22] = "Cementerio romano.jpg";
+images[23] = "Ruinas de una ciudad destruida.jpg";
+images[24] = "Palacio del gobernador romano.jpg";
+
+// Mensajes mostrados cuando un movimiento está bloqueado desde una casilla.
+var blockedPathMessages = [];
+blockedPathMessages[0] = "Los legionarios te ordenan permanecer en el campamento.";
+blockedPathMessages[1] = "El brocal del pozo es demasiado alto para cruzarlo por aquí.";
+blockedPathMessages[2] = "La multitud del foro bloquea el paso.";
+blockedPathMessages[3] = "La bestia del templo ruge y te impide avanzar.";
+blockedPathMessages[4] = "La calzada está vigilada por soldados romanos.";
+blockedPathMessages[5] = "La gran puerta de la ciudad está cerrada con gruesas cadenas.";
+blockedPathMessages[6] = "El río es demasiado profundo y la corriente es fuerte.";
+blockedPathMessages[7] = "Los comerciantes han cerrado el mercado y no te dejan pasar.";
+blockedPathMessages[8] = "Los guardias de la villa te niegan la entrada.";
+blockedPathMessages[9] = "Los gladiadores entrenan y bloquean el acceso.";
+blockedPathMessages[10] = "La armería está sellada por orden del centurión.";
+blockedPathMessages[11] = "La torre de vigilancia está restringida sin autorización.";
+blockedPathMessages[12] = "Un centurión cruza su lanza impidiéndote el paso.";
+blockedPathMessages[13] = "La muralla es demasiado alta para escalarla.";
+blockedPathMessages[14] = "El sacerdote exige una ofrenda antes de dejarte entrar.";
+blockedPathMessages[15] = "El fuego sagrado te obliga a retroceder.";
+blockedPathMessages[16] = "Las ruinas son inestables y podrían derrumbarse.";
+blockedPathMessages[17] = "Un silencio sagrado en el bosque te impide continuar.";
+blockedPathMessages[18] = "Sientes una presencia divina que no te permite avanzar.";
+blockedPathMessages[19] = "Las catacumbas están demasiado oscuras para entrar sin luz.";
+blockedPathMessages[20] = "Un derrumbe bloquea la entrada de la mina.";
+blockedPathMessages[21] = "El pantano es demasiado peligroso para cruzarlo.";
+blockedPathMessages[22] = "Un escalofrío recorre tu cuerpo al intentar entrar al cementerio.";
+blockedPathMessages[23] = "Soldados patrullan las ruinas y bloquean el paso.";
+blockedPathMessages[24] = "Los guardias del gobernador te detienen antes de entrar al palacio.";
+
+
+// Mensajes de ayuda contextuales por casilla: pistas que el jugador puede
+// solicitar con el comando `ayuda`.
+var helpMessages = [];
+helpMessages[0] = "Habla con los legionarios, quizá tengan información útil.";
+helpMessages[1] = "Una ofrenda lanzada al pozo podría revelar algo...";
+helpMessages[2] = "Escucha a la gente del foro, siempre circulan rumores.";
+helpMessages[3] = "Una buena arma podría ayudarte contra la bestia.";
+helpMessages[4] = "Los caminos romanos conectan lugares importantes.";
+helpMessages[5] = "Tal vez necesites una llave para cruzar esta puerta.";
+helpMessages[6] = "El agua puede esconder algo valioso.";
+helpMessages[7] = "Los comerciantes saben más de lo que aparentan.";
+helpMessages[8] = "La música puede abrir puertas inesperadas.";
+helpMessages[9] = "Entrenar aquí podría prepararte para futuros desafíos.";
+helpMessages[10] = "Aquí podrías encontrar un arma útil a cambio de una moneda.";
+helpMessages[11] = "Desde lo alto se puede observar toda la provincia.";
+helpMessages[12] = "Los centuriones respetan la autoridad y los símbolos sagrados.";
+helpMessages[13] = "Las murallas protegen algo importante en su interior.";
+helpMessages[14] = "Un pergamino sagrado podría impresionarle al sacerdote.";
+helpMessages[15] = "El fuego sagrado reacciona ante objetos especiales.";
+helpMessages[16] = "Explora con cuidado, las ruinas esconden secretos.";
+helpMessages[17] = "El bosque responde a quienes respetan a los dioses.";
+helpMessages[18] = "Las estatuas antiguas pueden guardar misterios.";
+helpMessages[19] = "Entrar sin luz en la oscuridad puede ser peligroso.";
+helpMessages[20] = "Quizá haya algo útil entre los restos de la mina.";
+helpMessages[21] = "El pantano requiere algo que te ayude a cruzarlo.";
+helpMessages[22] = "En el cementerio descansan secretos del pasado.";
+helpMessages[23] = "Las ruinas podrían ocultar un objeto clave.";
+helpMessages[24] = "Solo alguien digno puede entrar al palacio del gobernador.";
+
+
+// Gestión de objetos en el mundo y el inventario:
+// - items / itemLocations: objetos colocados en el mapa y su posición.
+// - itemsIknow: lista de nombres reconocidos por el parser de comandos.
+// - item: nombre detectado en la entrada del jugador para la acción.
+var items = [];
+var itemLocations = [];
+var itemsIknow = ["pergamino", "moneda", "gladius"];
+var item = "";
+
+// Estado del jugador:
+// - backpack: inventario del jugador.
+// - mapLocation: índice actual en map.
+// - playersInput: texto ingresado por el jugador (minúsculas).
+// - gameMessage: mensajes temporales mostrados al jugador.
+// - gameOver: flag de fin de partida.
+// - experiencia: puntos acumulados por tareas/objetos/enemigos.
+var backpack = [];
+var mapLocation = 12;
+var playersInput = "";
+var gameMessage = "";
+var gameOver = false;
+var experiencia = 0;
+
+// Constantes del juego: objetos importantes y valores de puntos.
+var IMPORTANT_ITEMS = ["pergamino", "gladius"];
+var TASK_POINTS = 20;
+var ITEM_POINTS = 10;
+var ENEMY_POINTS = 30;
+var defeatedEnemies = {
+  templeBeast: false
+};
+var wolfLocation = 3;
+var wolfVisitCount = 0;
+var wolfKilled = false;
+var wolfPendingKill = false;
+var requiredWolfItem = "gladius";
+
+// Flags y estado de misiones/diálogos.
+var centurionSpoken = false;
+var missionToCampActive = false;
+var missionToCampCompleted = false;
+var waitingForNextMission = false;
+
+var scrollMissionActive = false;
+var scrollMissionCompleted = false;
+var scrollMissionFailed = false;
+var scrollDeadline = 0;
+var scrollTimerId = null;
+var returnToCampMissionActive = false;
+var returnToCampMissionCompleted = false;
+var coinMissionActive = false;
+var coinMissionCompleted = false;
+
+// Lista de comandos reconocidos para la acciones
+var actionsIKnow = [
+  "oeste", "este", "norte", "sur",
+  "tomar", "usar", "soltar", "ayuda", "tot complet",
+  "hablar", "interactuar",
+  "siguiente", "mision"
+];
+var action = "";
+
+// Referencias salida de texto, campo de entrada, botón y imagen.
+var output = document.querySelector("#output");
+var input = document.querySelector("#input");
+var button = document.querySelector("button");
+var image = document.querySelector("img");
+
+button.style.cursor = "pointer";
+button.addEventListener("click", clickHandler, false);
+image.addEventListener("click", imageClickHandler, false);
+input.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    playGame();
+  }
+});
+
+output.innerHTML = map[mapLocation];
+render();
+
+// Click en el botón = procesar el comando escrito en el input.
+function clickHandler() {
+  playGame();
+}
+
+// Click en la imagen: acceso rápido al diálogo con el centurión al inicio.
+function imageClickHandler() {
+  if (mapLocation === 12 && !centurionSpoken) {
+    talkToCenturion();
+    render();
+  }
+}
+
+// Utilidad: comprueba si un objeto está actualmente en el inventario.
+function hasItem(itemName) {
+  return backpack.indexOf(itemName) !== -1;
+}
+
+// Utilidad: elimina una unidad del objeto indicado del inventario.
+function removeItemFromBackpack(itemName) {
+  var index = backpack.indexOf(itemName);
+  if (index !== -1) {
+    backpack.splice(index, 1);
+  }
+}
+
+// Sistema de puntuación centralizado para mantener un único formato de mensaje.
+function addScore(points, reason) {
+  experiencia += points;
+  gameMessage += (gameMessage ? " " : "") + "(+" + points + " puntos: " + reason + ")";
+}
+
+// Encuentro especial del lobo en la casilla 3:
+// Regla:
+// - No se gana por entrar con gladius.
+// - Para ganar hay que escribir "usar gladius" estando en la casilla del lobo.
+// - Primera entrada: aviso.
+// - Segunda entrada: aviso de ataque.
+// - Siguiente Enter en esa casilla, si no usaste el gladius: el lobo te mata.
+function handleWolfEncounter(previousLocation) {
+  if (mapLocation !== wolfLocation) {
+    wolfPendingKill = false;
+    return;
+  }
+
+  if (wolfKilled) {
+    wolfPendingKill = false;
+    return;
+  }
+
+  if (previousLocation === wolfLocation) {
+    return;
+  }
+
+  wolfVisitCount += 1;
+
+  if (wolfVisitCount === 1) {
+    wolfPendingKill = false;
+    gameMessage = "El lobo se despierta.";
+    return;
+  }
+
+  // Segunda entrada: deja un turno de margen para escribir "usar gladius".
+  wolfPendingKill = true;
+  gameMessage = "El lobo te acorrala. Usa gladius ahora o te matara al siguiente Enter.";
+}
+
+function defeatWolfWithGladius() {
+  wolfKilled = true;
+  wolfPendingKill = false;
+  gameOver = true;
+  gameMessage = "Has matado al lobo con el gladius. Victoria del jugador.";
+}
+
+function resolveWolfDangerTurn() {
+  // Si el lobo ya te acorraló en esta casilla, este turno se resuelve aquí.
+  if (mapLocation !== wolfLocation || !wolfPendingKill || wolfKilled) {
+    return false;
+  }
+
+  if (action === "usar" && item === requiredWolfItem) {
+    defeatWolfWithGladius();
+  } else {
+    gameOver = true;
+    gameMessage = "El lobo mata el personaje. Fin de la partida.";
+  }
+
+  return true;
+}
+
+function canMove() {
+  if (mapLocation === 12 && !centurionSpoken) {
+    gameMessage = "El centurion te bloquea el paso. Habla con el (escribe hablar/interactuar o haz clic en la imagen).";
+    return false;
+  }
+  return true;
+}
+
+function talkToCenturion() {
+  if (mapLocation !== 12) {
+    gameMessage = "No hay ningun personaje con quien hablar aqui.";
+    return;
+  }
+
+  if (!centurionSpoken) {
+    centurionSpoken = true;
+    missionToCampActive = true;
+    gameMessage = "El centurion dice: Te estan esperando en el campamento de legionarios. Mision iniciada.";
+    return;
+  }
+
+  if (missionToCampCompleted) {
+    gameMessage = "El centurion dice: Cumpliste tu deber, soldado.";
+  } else {
+    gameMessage = "El centurion repite: Ve al campamento de legionarios cuanto antes.";
+  }
+}
+
+function startScrollMission() {
+  // Solo se puede iniciar cuando la misión anterior ya marcó "siguiente misión".
+  if (!waitingForNextMission) {
+    gameMessage = "No hay una mision nueva pendiente.";
+    return;
+  }
+
+  if (mapLocation !== 0) {
+    gameMessage = "Debes estar en el campamento de legionarios para recibir la siguiente mision.";
+    return;
+  }
+
+  waitingForNextMission = false;
+  scrollMissionActive = true;
+  scrollMissionCompleted = false;
+  scrollMissionFailed = false;
+  scrollDeadline = Date.now() + 120000;
+
+  if (scrollTimerId !== null) {
+    clearTimeout(scrollTimerId);
+  }
+
+  // Cuenta atrás real de 120s: si expira y no se entregó el pergamino, derrota.
+  scrollTimerId = setTimeout(function() {
+    if (scrollMissionActive && !scrollMissionCompleted) {
+      scrollMissionActive = false;
+      scrollMissionFailed = true;
+      gameOver = true;
+      gameMessage = "Los mercenarios te alcanzan y te matan. Has perdido el juego.";
+      render();
+    }
+  }, 120000);
+
+  if (!hasItem("pergamino")) {
+    backpack.push("pergamino");
+  }
+
+  gameMessage = "El romano te da un pergamino valioso: entregalo en la Villa de un senador en 120 segundos o los mercenarios te mataran.";
+}
+
+function startCoinMission() {
+  if (!returnToCampMissionCompleted) {
+    gameMessage = "Primero debes volver al campamento de legionarios.";
+    return;
+  }
+
+  if (coinMissionCompleted) {
+    gameMessage = "Ya completaste la mision de la moneda.";
+    return;
+  }
+
+  if (!coinMissionActive) {
+    coinMissionActive = true;
+    if (!hasItem("moneda")) {
+      backpack.push("moneda");
+    }
+    gameMessage = "Nueva mision: te dan una moneda. Ve a la armeria romana e intercambiala por un gladius.";
+  } else {
+    gameMessage = "Mision activa: lleva la moneda a la armeria romana.";
+  }
+}
+
+function showMissionStatus() {
+  // Devuelve una sola línea según el estado más prioritario de la cadena de misiones.
+  if (scrollMissionActive) {
+    var remaining = Math.max(0, Math.ceil((scrollDeadline - Date.now()) / 1000));
+    gameMessage = "Mision del pergamino activa. Tiempo restante: " + remaining + " segundos.";
+  } else if (returnToCampMissionActive) {
+    gameMessage = "Mision activa: vuelve al campamento de legionarios.";
+  } else if (returnToCampMissionCompleted && !coinMissionActive && !coinMissionCompleted) {
+    gameMessage = "Has vuelto al campamento. Escribe siguiente para recibir una moneda.";
+  } else if (coinMissionActive) {
+    gameMessage = "Mision activa: intercambia la moneda por un gladius en la armeria romana.";
+  } else if (coinMissionCompleted) {
+    gameMessage = "Mision completada: ya tienes el gladius.";
+  } else if (waitingForNextMission) {
+    gameMessage = "Mision completada. Escribe siguiente para recibir la nueva mision.";
+  } else if (scrollMissionCompleted) {
+    gameMessage = "Mision completada: pergamino entregado en la villa del senador.";
+  } else if (scrollMissionFailed) {
+    gameMessage = "Has perdido: los mercenarios te mataron.";
+  } else if (missionToCampActive && !missionToCampCompleted) {
+    gameMessage = "Mision activa: ve al campamento de legionarios.";
+  } else {
+    gameMessage = "No hay misiones activas.";
+  }
+}
+
+function updateMissionProgress() {
+  // Misión 1: llegar al campamento tras hablar con el centurión.
+  if (missionToCampActive && !missionToCampCompleted && mapLocation === 0) {
+    missionToCampActive = false;
+    missionToCampCompleted = true;
+    waitingForNextMission = true;
+    gameMessage = "Mision completada. Escribe siguiente para recibir otra mision.";
+    addScore(TASK_POINTS, "tasca completada");
+  }
+
+  // Seguridad extra por si el tiempo termina entre comandos.
+  if (scrollMissionActive && Date.now() >= scrollDeadline) {
+    scrollMissionActive = false;
+    scrollMissionFailed = true;
+    gameOver = true;
+    gameMessage = "Los mercenarios te alcanzan y te matan. Has perdido el juego.";
+  }
+
+  // Misión 2: entrega del pergamino en la villa del senador.
+  if (scrollMissionActive && mapLocation === 8 && hasItem("pergamino")) {
+    scrollMissionActive = false;
+    scrollMissionCompleted = true;
+    returnToCampMissionActive = true;
+    removeItemFromBackpack("pergamino");
+
+    if (scrollTimerId !== null) {
+      clearTimeout(scrollTimerId);
+      scrollTimerId = null;
+    }
+
+    // recompensa: obtines una moneda al entregar el pergamino
+    if (!hasItem("moneda")) {
+      backpack.push("moneda");
+    }
+    gameMessage = "Entregaste el pergamino en la villa del senador. Recibiste una moneda como recompensa. Vuelve al campamento para recibir nuevas ordenes.";
+    addScore(TASK_POINTS, "tasca completada");
+  }
+
+  // Misión 3: volver al campamento tras entregar el pergamino.
+  if (returnToCampMissionActive && mapLocation === 0) {
+    returnToCampMissionActive = false;
+    returnToCampMissionCompleted = true;
+    gameMessage = "Has vuelto al campamento. Con esta moneda la puedes cambiar por algo en la armeria.";
+    addScore(TASK_POINTS, "tasca completada");
+  }
+
+  // Misión 4: canjear moneda por gladius en la armería.
+  if (coinMissionActive && mapLocation === 10 && countInBackpack("moneda") >= 1) {
+    coinMissionActive = false;
+    coinMissionCompleted = true;
+    // borrar una moneda del inventario y añadir un gladius
+    removeItemFromBackpack("moneda");
+    if (!hasItem("gladius")) {
+      backpack.push("gladius");
+    }
+    gameMessage = "Intercambiaste la moneda en la armeria y recibiste un gladius.";
+    addScore(TASK_POINTS, "tasca completada");
+  }
+}
+
+// FUNCIÓN PRINCIPAL: procesa la entrada del jugador, detecta la acción y el objeto,
+// y ejecuta la operación correspondiente (mover, tomar, soltar, usar, hablar, etc.).
+// También llama a handleWolfEncounter, updateMissionProgress y render.
+function playGame() {
+  if (gameOver) {
+    render();
+    return;
+  }
+
+  var previousLocation = mapLocation;
+  playersInput = input.value.toLowerCase();
+  gameMessage = "";
+  action = "";
+  item = "";
+
+  // Parser simple: detecta la primera acción conocida que aparezca en el texto.
+  for (var i = 0; i < actionsIKnow.length; i++) {
+    if (playersInput.indexOf(actionsIKnow[i]) !== -1) {
+      action = actionsIKnow[i];
+      break;
+    }
+  }
+
+  // Parser de objeto objetivo (pergamino/moneda/gladius) dentro del texto.
+  for (var j = 0; j < itemsIknow.length; j++) {
+    if (playersInput.indexOf(itemsIknow[j]) !== -1) {
+      item = itemsIknow[j];
+      break;
+    }
+  }
+
+  if (resolveWolfDangerTurn()) {
+    render();
+    return;
+  }
+
+  // Resolución principal de comandos.
+  if (action === "norte") {
+    if (canMove()) {
+      if (mapLocation >= 5) {
+        mapLocation -= 5;
+      } else {
+        gameMessage = blockedPathMessages[mapLocation];
+      }
+    }
+  } else if (action === "este") {
+    if (canMove()) {
+      if (mapLocation % 5 !== 4) {
+        mapLocation += 1;
+      } else {
+        gameMessage = blockedPathMessages[mapLocation];
+      }
+    }
+  } else if (action === "oeste") {
+    if (canMove()) {
+      if (mapLocation % 5 !== 0) {
+        mapLocation -= 1;
+      } else {
+        gameMessage = blockedPathMessages[mapLocation];
+      }
+    }
+  } else if (action === "sur") {
+    if (canMove()) {
+      if (mapLocation <= 19) {
+        mapLocation += 5;
+      } else {
+        gameMessage = blockedPathMessages[mapLocation];
+      }
+    }
+  } else if (action === "tomar") {
+    takeItem();
+  } else if (action === "soltar") {
+    dropItem();
+  } else if (action === "usar") {
+    useItem();
+  } else if (action === "tot complet") {
+    totcomplet();
+  } else if (action === "hablar" || action === "interactuar") {
+    talkToCenturion();
+  } else if (action === "siguiente") {
+    startScrollMission();
+  } else if (action === "mision") {
+    showMissionStatus();
+  } else if (action === "ayuda") {
+    if (helpMessages[mapLocation] !== "") {
+      gameMessage = helpMessages[mapLocation];
+    }
+    gameMessage += " Pero no hay nada que buscar en este sitio.";
+    //el input esborra ls paraula del jugador en cas de que no sigui una variable coneguda quan donguis enter
+  } else {
+    gameMessage = "No entiendo lo que dices";
+    input.value = "";
+  }
+
+  handleWolfEncounter(previousLocation);
+  // Progreso de misiones después de cada acción para no perder eventos de llegada.
+  updateMissionProgress();
+  render();
+}
+
+// Mensaje de ayuda corto que enumera comandos válidos
+function totcomplet() {
+  gameMessage = "Prueba: norte, este, sur, oeste, tomar, soltar, usar, hablar/interactuar, mision, siguiente.";
+}
+
+// TOMAR OBJETO: intenta recoger el item presente en la casilla actual.
+// - Añade el objeto al backpack si está en items y en la misma mapLocation.
+// - Para objetos importantes suma experiencia.
+function takeItem() {
+  var itemIndexNumber = items.indexOf(item);
+
+  if (itemIndexNumber !== -1 && itemLocations[itemIndexNumber] === mapLocation) {
+    backpack.push(item);
+    items.splice(itemIndexNumber, 1);
+    itemLocations.splice(itemIndexNumber, 1);
+
+    if (IMPORTANT_ITEMS.indexOf(item) !== -1) {
+      addScore(ITEM_POINTS, "objecte important aconseguit (" + item + ")");
+    }
+
+    console.log("world Items : " + items);
+    console.log("backpack items : " + backpack);
+  } else {
+    gameMessage = "No puedes hacer eso.";
+  }
+}
+
+function countInBackpack(name) {
+  // Permite manejar inventario con repetidos (por ejemplo, más de una moneda).
+  var count = 0;
+  for (var i = 0; i < backpack.length; i++) {
+    if (backpack[i] === name) count++;
+  }
+  return count;
+}
+
+// SOLTAR OBJETO: deja el objeto seleccionado en la casilla actual y lo quita del inventario.
+function dropItem() {
+  var backpackIndexNumber = backpack.indexOf(item);
+
+  if (backpack.length !== 0) {
+    if (backpackIndexNumber !== -1) {
+      if (item === "pergamino" && scrollMissionActive) {
+        gameMessage = "No puedes soltar el pergamino, es demasiado valioso.";
+        return;
+      }
+
+      items.push(backpack[backpackIndexNumber]);
+      itemLocations.push(mapLocation);
+
+      backpack.splice(backpackIndexNumber, 1);
+
+      console.log("world Items : " + items);
+      console.log("backpack items : " + backpack);
+    } else {
+      gameMessage = "No puedes hacer eso.";
+    }
+  } else {
+    gameMessage = "No llevas nada.";
+  }
+}
+
+// USAR OBJETO: comportamiento contextual al usar un objeto del inventario.
+// Ejemplos: usar pergamino muestra instrucciones usar moneda en la armería da gladius.
+function useItem() {
+  var backpackIndexNumber = backpack.indexOf(item);
+
+  if (backpackIndexNumber === -1) {
+    gameMessage = "No lo llevas.";
+  } else {
+    if (item === "pergamino") {
+      gameMessage = "Debes entregarlo en la villa del senador antes de 120 segundos.";
+    } else if (item === "moneda") {
+      if (mapLocation === 10) {
+        removeItemFromBackpack("moneda");
+        if (!hasItem("gladius")) {
+          backpack.push("gladius");
+        }
+        gameMessage = "Has recibido un gladius.";
+        addScore(TASK_POINTS, "tasca completada");
+      } else {
+        gameMessage = "No puedes usar la moneda aquí.";
+      }
+    } else if (item === "gladius") {
+      if (mapLocation === wolfLocation && !wolfKilled) {
+        defeatWolfWithGladius();
+      } else {
+        gameMessage = "No puedes usar eso aquí.";
+      }
+    } else {
+      gameMessage = "No puedes usar eso aquí.";
+    }
+  }
+}
+
+// RENDER: actualiza la interfaz (#output y la imagen) con la casilla actual,
+// experiencia, estado de misiones y gameMessage.
+function render() {
+  // Estado base de la pantalla en cada turno.
+  output.innerHTML = map[mapLocation];
+  output.innerHTML += "<br><strong>Experiencia: " + experiencia + "</strong>";
+  image.src = "../images/" + encodeURIComponent(images[mapLocation]);
+
+  if (mapLocation === 12 && !centurionSpoken) {
+    output.innerHTML += "<br><strong>Un centurion te observa. Haz clic en la imagen o escribe hablar/interactuar para interactuar.Si no sabes jugar escribe tot complet</strong>";
+    image.style.cursor = "pointer";
+  } else {
+    image.style.cursor = "default";
+  }
+
+  if (missionToCampActive && !missionToCampCompleted) {
+    output.innerHTML += "<br><strong>Mision activa: Ve al campamento de legionarios.</strong>";
+  }
+
+  if (waitingForNextMission) {
+    output.innerHTML += "<br><strong>Mision completada. Escribe siguiente para recibir otra mision.</strong>";
+  }
+
+  if (scrollMissionActive) {
+    var remaining = Math.max(0, Math.ceil((scrollDeadline - Date.now()) / 1000));
+    output.innerHTML += "<br><strong>Mision activa: Entrega el pergamino en la Villa del senador.</strong>";
+    output.innerHTML += "<br><strong>Tiempo restante: " + remaining + " segundos.</strong>";
+  }
+
+  if (scrollMissionCompleted) {
+    output.innerHTML += "<br><strong>Mision completada: pergamino entregado.</strong>";
+  }
+
+  if (scrollMissionFailed) {
+    output.innerHTML += "<br><strong>Derrota: los mercenarios te mataron.</strong>";
+  }
+
+  output.innerHTML += "<br><em>" + gameMessage + "</em>";
+}
+</script>
